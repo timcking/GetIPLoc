@@ -1,8 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import pygeoip
-gi = pygeoip.GeoIP('GeoLiteCity.dat')
+# TODO:
+#    Add UI
+#    Add 'Show in Google Maps'
 
+import pygeoip
+import csv
+
+gi = pygeoip.GeoIP('GeoLiteCity.dat')
 
 def printRecord(tgt):
     rec = gi.record_by_name(tgt)
@@ -11,11 +16,16 @@ def printRecord(tgt):
     country = rec['country_name']
     long = rec['longitude']
     lat = rec['latitude']
-    print '[*] Target: ' + tgt + ' Geo-located. '
-    print '[+] '+str(city)+', '+str(region)+', '+str(country)
-    print '[+] Latitude: '+str(lat)+ ', Longitude: '+ str(long)
+    print 'Target:   ' + tgt
+    print 'Location: '+str(city)+', '+str(region)+', '+str(country)
+    print 'Latitude: '+str(lat)+ ', Longitude: '+ str(long) + '\n'
 
 
-tgt = '66.249.76.164'
-printRecord(tgt)
-
+def main():
+    with open('data.txt', 'rb') as f:
+        reader = csv.reader(f, delimiter=' ')
+        for row in reader:
+            printRecord(row[0])
+            
+if __name__ == '__main__':
+    main()
