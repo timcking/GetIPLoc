@@ -15,39 +15,61 @@ class MyApp(wx.App):
     dictLocs = {}
     
     def OnInit(self):
-        self.readLocFile()
         self.res = xrc.XmlResource('GetIPLoc.xrc')
         self.init_frame()
         return(True)
 
     def init_frame(self):
         self.frame = self.res.LoadFrame(None, 'frameMain')
-        self.frame.Show()
         
         # Bind Controls
         self.btnExit = xrc.XRCCTRL(self.frame, 'wxID_EXIT')
+        self.listSummary = xrc.XRCCTRL(self.frame, 'listSummary')
+        self.listSummary.InsertColumn(0, 'IP', width=110)
+        self.listSummary.InsertColumn(1, 'Date')
+        self.listSummary.InsertColumn(2, 'Time')        
         
         # Bind Events
         self.frame.Bind(wx.EVT_BUTTON, self.OnClose, id=xrc.XRCID('wxID_EXIT'))
+        
+        self.readLocFile()
+        self.frame.Show()
     
     def readLocFile(self):
         # Read data from CSV (text) file
         with open('data.txt', 'rb') as f:
             reader = csv.reader(f, delimiter=' ')
             for row in reader:
-                self.getLocData(row[0], row[1])
+                self.getLocData(row[0], row[1], row[2])
 
-    def getLocData(self, tgt, date):
+    def getLocData(self, tgt, theDate, theTime):
+        self.listSummary.InsertStringItem(0, tgt)
+        self.listSummary.SetStringItem(0, 1, theDate)
+        self.listSummary.SetStringItem(0, 2, theTime)
+        # self.listSummary.Append("%s %s %s" % (tgt, theDate, theTime))
         rec = self.gi.record_by_name(tgt)
         city = rec['city']
         region = rec['metro_code']
         country = rec['country_name']
         lon = rec['longitude']
         lat = rec['latitude']
-        print 'IP Addr:  ' + tgt
-        print 'Date:     ' + date
-        print 'Location: '+ str(city)+', '+ str(region)+', '+ str(country)
-        print 'Lat/Lon:  ' + str(lat) + ','+ str(lon)
+        
+        # Save to dict here
+        #index_count = 0
+        #for theRec in rec:
+            #try:
+                #self.listSummary.Append("%s, %s %s" % (tgt, theDate, theTime))
+            #except Exception, e:
+                #print "Change me"
+            
+            # Save for when box is clicked
+            #self.dictTitles[index_count] = title.movieID
+            #index_count += 1         
+        
+        print 'IP Addr:   ' + tgt
+        print 'Date/Time: ' + theDate + ' ' + theTime
+        print 'Location:  ' + str(city)+', '+ str(region)+', '+ str(country)
+        print 'Lat/Lon:   ' + str(lat) + ','+ str(lon)
         print ''
     
     def showMap():
