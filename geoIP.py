@@ -36,6 +36,7 @@ class MyApp(wx.App):
         self.frame.Show()
     
     def readLocFile(self):
+        self.index = 0
         # Read data from CSV (text) file
         with open('data.txt', 'rb') as f:
             reader = csv.reader(f, delimiter=' ')
@@ -43,10 +44,11 @@ class MyApp(wx.App):
                 self.getLocData(row[0], row[1], row[2])
 
     def getLocData(self, tgt, theDate, theTime):
-        self.listSummary.InsertStringItem(0, tgt)
-        self.listSummary.SetStringItem(0, 1, theDate)
-        self.listSummary.SetStringItem(0, 2, theTime)
-        # self.listSummary.Append("%s %s %s" % (tgt, theDate, theTime))
+        # Load the list control
+        self.listSummary.InsertStringItem(self.index, tgt)
+        self.listSummary.SetStringItem(self.index, 1, theDate)
+        self.listSummary.SetStringItem(self.index, 2, theTime)
+        
         rec = self.gi.record_by_name(tgt)
         city = rec['city']
         region = rec['metro_code']
@@ -71,6 +73,8 @@ class MyApp(wx.App):
         print 'Location:  ' + str(city)+', '+ str(region)+', '+ str(country)
         print 'Lat/Lon:   ' + str(lat) + ','+ str(lon)
         print ''
+        
+        self.index += 1
     
     def showMap():
         # Hardcoded for now
