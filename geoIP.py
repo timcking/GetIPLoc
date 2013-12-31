@@ -12,14 +12,10 @@ import webbrowser
 
 class MyApp(wx.App):
     gi = pygeoip.GeoIP('GeoLiteCity.dat')
+    dictLocs = {}
     
     def OnInit(self):
-        # Read data from CSV (text) file
-        with open('data.txt', 'rb') as f:
-            reader = csv.reader(f, delimiter=' ')
-            for row in reader:
-                self.getLocData(row[0], row[1])
-                
+        self.readLocFile()
         self.res = xrc.XmlResource('GetIPLoc.xrc')
         self.init_frame()
         return(True)
@@ -33,6 +29,13 @@ class MyApp(wx.App):
         
         # Bind Events
         self.frame.Bind(wx.EVT_BUTTON, self.OnClose, id=xrc.XRCID('wxID_EXIT'))
+    
+    def readLocFile(self):
+        # Read data from CSV (text) file
+        with open('data.txt', 'rb') as f:
+            reader = csv.reader(f, delimiter=' ')
+            for row in reader:
+                self.getLocData(row[0], row[1])
 
     def getLocData(self, tgt, date):
         rec = self.gi.record_by_name(tgt)
