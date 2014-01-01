@@ -12,7 +12,6 @@ import webbrowser
 
 class MyApp(wx.App):
     gi = pygeoip.GeoIP('GeoLiteCity.dat')
-    dictLocs = {}
     
     def OnInit(self):
         self.res = xrc.XmlResource('GetIPLoc.xrc')
@@ -28,6 +27,8 @@ class MyApp(wx.App):
         self.listSummary.InsertColumn(0, 'IP', width=110)
         self.listSummary.InsertColumn(1, 'Date')
         self.listSummary.InsertColumn(2, 'Time')        
+        self.txtArea = xrc.XRCCTRL(self.frame, 'txtArea')
+        self.txtZip = xrc.XRCCTRL(self.frame, 'txtZip')
         self.txtLatLon = xrc.XRCCTRL(self.frame, 'txtLatLon')
         self.txtLoc = xrc.XRCCTRL(self.frame, 'txtLoc')
         
@@ -44,22 +45,13 @@ class MyApp(wx.App):
         with open('data.txt', 'rb') as f:
             reader = csv.reader(f, delimiter=' ')
             for row in reader:
-                self.getLocData(row[0], row[1], row[2])
+                self.loadList(row[0], row[1], row[2])
 
-    def getLocData(self, tgt, theDate, theTime):
+    def loadList(self, tgt, theDate, theTime):
         # Load the list control
         self.listSummary.InsertStringItem(self.index, tgt)
         self.listSummary.SetStringItem(self.index, 1, theDate)
         self.listSummary.SetStringItem(self.index, 2, theTime)
-        
-        # Don't need this
-        self.dictLocs[self.index] = tgt
-        
-        #print 'IP Addr:   ' + tgt
-        #print 'Date/Time: ' + theDate + ' ' + theTime
-        #print 'Location:  ' + str(city)+', '+ str(region)+', '+ str(country)
-        #print 'Lat/Lon:   ' + str(lat) + ','+ str(lon)
-        #print ''
         
         self.index += 1
     
@@ -70,19 +62,15 @@ class MyApp(wx.App):
             
     def OnClick(self, event):
         rec = self.gi.record_by_name(event.GetText())
-        city = rec['city']
-        region = rec['metro_code']
-        country = rec['country_name']
-        lon = rec['longitude']
-        lat = rec['latitude']
         
         post_office = rec['postal_code']
-        
         if post_office == None:
             post_office = ''
         
-        self.txtLatLon.SetValue('%s, %s' % (str(rec['latitude']), str(rec['longitude'])))
-        self.txtLoc.SetValue('%s, %s %s %s' % (rec['city'], rec['region_code'], rec['country_name'], post_office))
+        self.txtArea.SetValue('%s' % (rec['area_code']))
+        self.txtZip.SetValue('%s' % (post_office))
+        self.txtLatLon.SetValue('%s,%s' % (str(rec['latitude']), str(rec['longitude'])))
+        self.txtLoc.SetValue('%s, %s %s' % (rec['city'], rec['region_code'], rec['country_name']))
         
     def OnClose(self, evt):
         self.Exit()            
