@@ -25,9 +25,9 @@ class MyApp(wx.App):
         self.btnExit = xrc.XRCCTRL(self.frame, 'wxID_EXIT')
         self.btnMap = xrc.XRCCTRL(self.frame, 'btnMap')
         self.listSummary = xrc.XRCCTRL(self.frame, 'listSummary')
-        self.listSummary.InsertColumn(0, 'IP', width=110)
-        self.listSummary.InsertColumn(1, 'Date')
-        self.listSummary.InsertColumn(2, 'Time')        
+        self.listSummary.InsertColumn(0, 'IP', width=100)
+        self.listSummary.InsertColumn(1, 'Date', width=90)
+        self.listSummary.InsertColumn(2, 'Time', width=90)        
         self.txtArea = xrc.XRCCTRL(self.frame, 'txtArea')
         self.txtZip = xrc.XRCCTRL(self.frame, 'txtZip')
         self.txtLatLon = xrc.XRCCTRL(self.frame, 'txtLatLon')
@@ -49,22 +49,16 @@ class MyApp(wx.App):
             for row in reader:
                 self.loadList(row[0], row[1], row[2])
 
-    def loadList(self, tgt, theDate, theTime):
+    def loadList(self, theLoc, theDate, theTime):
         # Load the list control
-        self.listSummary.InsertStringItem(self.index, tgt)
+        self.listSummary.InsertStringItem(self.index, theLoc)
         self.listSummary.SetStringItem(self.index, 1, theDate)
         self.listSummary.SetStringItem(self.index, 2, theTime)
         
         self.index += 1
-    
-    def showMap():
-        # Hardcoded for now
-        url = 'http://maps.google.com/?q=38.645,-121.4404'
-        webbrowser.open_new(url)
-            
-    def OnClick(self, event):
-        # ToDo, move this code out of here
-        self.rec = self.gi.record_by_name(event.GetText())
+        
+    def loadRec(self, theLoc):
+        self.rec = self.gi.record_by_name(theLoc)
         
         post_office = self.rec['postal_code']
         if post_office == None:
@@ -74,6 +68,9 @@ class MyApp(wx.App):
         self.txtZip.SetValue('%s' % (post_office))
         self.txtLatLon.SetValue('%s,%s' % (str(self.rec['latitude']), str(self.rec['longitude'])))
         self.txtLoc.SetValue('%s, %s %s' % (self.rec['city'], self.rec['region_code'], self.rec['country_name']))
+    
+    def OnClick(self, event):
+        self.loadRec(event.GetText())
         
     def OnClose(self, evt):
         self.Exit()            
